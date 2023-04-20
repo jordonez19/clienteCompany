@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import { Table, Col, Row, Button, Modal, Input } from "antd";
-
+const { TextArea } = Input;
 const columns = [
   {
     title: "#",
@@ -27,12 +27,26 @@ const columns = [
 ];
 
 const CrudContainer = () => {
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
 
-  
-  const [openModal, setOpenModal] = useState(true);
+  const [form, setForm] = useState({
+    name: "",
+    price: "",
+    description: "",
+  });
 
-  const [mode, setMode] = useState("");
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
   const showModal = () => {
     setOpenModal(true);
@@ -44,53 +58,65 @@ const CrudContainer = () => {
     setOpenModal(false);
   };
 
-  useEffect(() => {
-    fetchdata();
-  }, []);
-
-  const fetchdata = async () => {
+  const fetchData = async () => {
     const response = await axios.get("http://localhost:2000/products/");
     setData(response.data);
   };
 
+  const handlePost = async () => {
+    const response = await axios.post("http://localhost:2000/products/", form);
+    if (response.status === 200) {
+      alert(response.data.message);
+    } else {
+      alert("Producto no ha sido creado");
+    }
+    console.log("response post", response);
+    setOpenModal(false);
+  };
+
   return (
-    <div>
+    <>
       <Row>
         <Col span={12} offset={6}>
           <h1>Mi primera api</h1>
           <Button type="primary" onClick={showModal}>
             Crear
           </Button>
-          <Table dataSource={data} columns={columns} />
+          <Table rowKey={"id"} dataSource={data} columns={columns} />
         </Col>
       </Row>
 
-      <Button onClick={() => {
-
-        setMode("update")
-        setOpenModal(true)
-
-        }}>update</Button>
-
-      <Button onClick={() => {
-        setMode("CREAR")
-        setOpenModal(true)
-        }}>CREAR</Button>
-
       <Modal
-        title={mode === "update" ? "Actualizar producto" : "crear producto"}
+        title={"crear producto"}
         open={openModal}
-        onOk={() => setOpenModal(false)}
+        onOk={handlePost}
         onCancel={() => setOpenModal(false)}
       >
-        <p>Some contents...</p>
-        <Input placeholder="content" />
-        <p>Some contents...</p>
-        <Input placeholder="content" />
-        <p>Some contents...</p>
-        <Input placeholder="content" />
+        <p>Nombre:</p>
+        <Input
+          onChange={handleChange}
+          name="name"
+          placeholder="content"
+          value={form.name}
+        />
+        <p>Precio</p>
+        <Input
+          onChange={handleChange}
+          name="price"
+          placeholder="content"
+          value={form.price}
+        />
+        <p>Descripcion:</p>
+        <TextArea
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          placeholder="maxLength is 6"
+          rows={4}
+          maxLength={25}
+        />
       </Modal>
-    </div>
+    </>
   );
 };
 
