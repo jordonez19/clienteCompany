@@ -3,28 +3,6 @@ import axios from "axios";
 
 import { Table, Col, Row, Button, Modal, Input } from "antd";
 const { TextArea } = Input;
-const columns = [
-  {
-    title: "#",
-    dataIndex: "id",
-    key: "id",
-  },
-  {
-    title: "Nombre",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "Precio",
-    dataIndex: "price",
-    key: "price",
-  },
-  {
-    title: "Descripcion",
-    dataIndex: "description",
-    key: "description",
-  },
-];
 
 const CrudContainer = () => {
   const [data, setData] = useState([]);
@@ -38,7 +16,7 @@ const CrudContainer = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [data]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,6 +27,8 @@ const CrudContainer = () => {
   };
 
   const showModal = () => {
+    setOpenModal(true);
+    resetForm();
     setOpenModal(true);
   };
   const handleOk = () => {
@@ -72,6 +52,92 @@ const CrudContainer = () => {
     }
     console.log("response post", response);
     setOpenModal(false);
+    fetchData();
+  };
+
+  const handleEdit = (record) => {
+    setForm(record);
+    setOpenModal(true);
+  };
+
+  const handleUpdate = async () => {
+    const response = await axios.put(
+      `http://localhost:2000/products/${form.id}`,
+      form
+    );
+    if (response.status === 200) {
+      alert(response.data.message);
+    } else {
+      alert("Producto no ha sido actualizado");
+    }
+    console.log("response put", response);
+    setOpenModal(false);
+    fetchData();
+  };
+
+  
+  const handleDelete = async (id) => {
+    const response = await axios.delete(
+      `http://localhost:2000/products/${id}`
+    );
+    if (response.status === 200) {
+      alert(response.data.message);
+    } else {
+      alert("Producto no ha sido eliminado");
+    }
+    console.log("response delete", response);
+    fetchData();
+  };
+
+  const columns = [
+    {
+      title: "#",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Nombre",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Precio",
+      dataIndex: "price",
+      key: "price",
+    },
+    {
+      title: "Descripcion",
+      dataIndex: "description",
+      key: "description",
+    },
+    {
+      title: "Editar",
+      dataIndex: "",
+      key: "x",
+      render: (record) => (
+        <Button type="primary" onClick={() => handleEdit(record)}>
+          Editar
+        </Button>
+      ),
+    },
+    {
+      title: "Eliminar",
+      dataIndex: "",
+      key: "y",
+      render: (record) => (
+        <Button type="primary" danger onClick={() => handleDelete(record.id)}>
+          Eliminar
+        </Button>
+      ),
+    },
+  ];
+
+  const resetForm = () => {
+    setForm({
+      name: "",
+      price: "",
+      description: "",
+    });
   };
 
   return (
@@ -87,31 +153,31 @@ const CrudContainer = () => {
       </Row>
 
       <Modal
-        title={"crear producto"}
+        title={form.id ? "Editar producto" : "Crear producto"}
         open={openModal}
-        onOk={handlePost}
+        onOk={form.id ? handleUpdate : handlePost}
         onCancel={() => setOpenModal(false)}
       >
         <p>Nombre:</p>
         <Input
           onChange={handleChange}
           name="name"
-          placeholder="content"
-          value={form.name}
+          placeholder="Nombre del producto"
+          value={form && form.name}
         />
-        <p>Precio</p>
+        <p>Precio:</p>
         <Input
           onChange={handleChange}
           name="price"
-          placeholder="content"
-          value={form.price}
+          placeholder="Precio del producto"
+          value={form && form.price}
         />
         <p>Descripcion:</p>
         <TextArea
-          name="description"
-          value={form.description}
           onChange={handleChange}
-          placeholder="maxLength is 6"
+          name="description"
+          value={form && form.description}
+          placeholder="Descripcion del producto"
           rows={4}
           maxLength={25}
         />
