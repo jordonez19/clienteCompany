@@ -62,7 +62,7 @@ const CrudContainer = () => {
 
   const handleUpdate = async () => {
     const response = await axios.put(
-      `https://simple-mysql-api-production.up.railway.app/products/products/${form.id}`,
+      `https://simple-mysql-api-production.up.railway.app/products/${form.id}`,
       form
     );
     if (response.status === 200) {
