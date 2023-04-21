@@ -39,12 +39,12 @@ const CrudContainer = () => {
   };
 
   const fetchData = async () => {
-    const response = await axios.get("http://localhost:2000/products/");
+    const response = await axios.get("https://simple-mysql-api-production.up.railway.app/products/");
     setData(response.data);
   };
 
   const handlePost = async () => {
-    const response = await axios.post("http://localhost:2000/products/", form);
+    const response = await axios.post("https://simple-mysql-api-production.up.railway.app/products/", form);
     if (response.status === 200) {
       alert(response.data.message);
     } else {
@@ -62,7 +62,7 @@ const CrudContainer = () => {
 
   const handleUpdate = async () => {
     const response = await axios.put(
-      `http://localhost:2000/products/${form.id}`,
+      `https://simple-mysql-api-production.up.railway.app/products/products/${form.id}`,
       form
     );
     if (response.status === 200) {
@@ -76,18 +76,19 @@ const CrudContainer = () => {
   };
   
   const handleDelete = async (id) => {
-    const response = await axios.delete(
-      `http://localhost:2000/products/${id}`
-    );
+    const confirmed = window.confirm('¿Estás seguro de que quieres eliminar este producto?');
+    if (!confirmed) {
+      return; 
+    }
+    const response = await axios.delete(`https://simple-mysql-api-production.up.railway.app/products/${id}`);
     if (response.status === 200) {
       alert(response.data.message);
     } else {
-      alert("Producto no ha sido eliminado");
+      alert('Producto no ha sido eliminado');
     }
-    console.log("response delete", response);
     fetchData();
   };
-
+  
   const columns = [
     {
       title: "#",
