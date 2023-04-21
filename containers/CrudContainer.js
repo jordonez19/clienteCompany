@@ -16,7 +16,7 @@ const CrudContainer = () => {
 
   useEffect(() => {
     fetchData();
-  }, [data]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,7 +74,6 @@ const CrudContainer = () => {
     setOpenModal(false);
     fetchData();
   };
-
   
   const handleDelete = async (id) => {
     const response = await axios.delete(
